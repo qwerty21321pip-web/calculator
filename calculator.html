@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ru">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Калькулятор</title>
+<style>
+*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:#eef2f7;color:#18243a;font:18px system-ui,sans-serif;padding:20px}main{width:min(100%,420px);padding:28px;background:white;border-radius:24px;box-shadow:0 16px 50px #23314d18}h1{margin:0 0 24px;font-size:28px}label{display:block;font-size:14px;margin:18px 0 8px;color:#526078}input{width:100%;font:24px system-ui;padding:14px;border:1px solid #cdd5e1;border-radius:12px;outline-color:#346ae5}.buttons{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:24px 0}button{border:0;border-radius:12px;padding:16px 0;background:#e8efff;color:#2052bb;font:bold 23px system-ui;cursor:pointer}button:hover{background:#d5e2ff}button:focus-visible{outline:3px solid #346ae5}output{display:block;min-height:90px;border-radius:14px;background:#f5f7fb;padding:20px;overflow-wrap:anywhere;font-size:30px}.caption{font-size:13px;color:#69758a;margin:12px 0 0}.clear{width:100%;font-size:16px;margin-top:16px;padding:12px;background:#eef1f5;color:#526078}
+</style>
+<main>
+<h1>Калькулятор</h1>
+<label for="a">Первое число</label><input id="a" inputmode="decimal" placeholder="Например, 12" autocomplete="off">
+<label for="b">Второе число</label><input id="b" inputmode="decimal" placeholder="Например, 3" autocomplete="off">
+<div class="buttons" aria-label="Операции"><button data-op="+" aria-label="Сложить">+</button><button data-op="-" aria-label="Вычесть">−</button><button data-op="*" aria-label="Умножить">×</button><button data-op="/" aria-label="Разделить">÷</button><button data-op="**" aria-label="Возвести в степень">xʸ</button></div>
+<output id="result" aria-live="polite">Результат</output>
+<p class="caption" id="expression">Введи два числа и нажми кнопку операции.</p>
+<button class="clear" id="clear">Очистить</button>
+</main>
+<script>
+'use strict';
+function calculate(a,b,op){
+ if(op==='+')return a+b;
+ if(op==='-')return a-b;
+ if(op==='*')return a*b;
+ if(op==='/'){if(b===0)throw Error('На ноль делить нельзя');return a/b;}
+ if(op==='**')return a**b;
+ throw Error('Неизвестная операция');
+}
+const first=document.getElementById('a'),second=document.getElementById('b'),result=document.getElementById('result'),expression=document.getElementById('expression');
+for(const button of document.querySelectorAll('[data-op]'))button.addEventListener('click',()=>{
+ try{
+  const x=first.value.trim().replace(',','.'),y=second.value.trim().replace(',','.');
+  if(!x||!y)throw Error('Введи оба числа');
+  const a=Number(x),b=Number(y);
+  if(!Number.isFinite(a)||!Number.isFinite(b))throw Error('Проверь введённые числа');
+  const value=calculate(a,b,button.dataset.op);
+  if(!Number.isFinite(value))throw Error('Результат не является конечным числом');
+  result.textContent=String(Number(value.toPrecision(12))).replace('.',',');
+  expression.textContent=`${x} ${button.textContent==='xʸ'?'^':button.textContent} ${y}`;
+ }catch(error){result.textContent=error.message;expression.textContent='Исправь ввод и попробуй ещё раз';}
+});
+document.getElementById('clear').addEventListener('click',()=>{first.value='';second.value='';result.textContent='Результат';expression.textContent='Введи два числа и нажми кнопку операции.';first.focus();});
+</script>
+</html>
